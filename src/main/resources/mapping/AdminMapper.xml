@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.demo.mapper.AdminMapper">
+
+    <sql id="select">
+        id,`name`,password,salt,created_at,updated_at
+    </sql>
+
+    <select id="queryAdminUserById" parameterType="long" resultType="com.example.demo.model.AdminModel">
+        SELECT
+        id,`name`,password,salt,created_at,updated_at
+        FROM admin
+        <where>
+            <if test="id != null">
+                id = #{id}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateAdminUserById" parameterType="com.example.demo.model.AdminModel">
+        update admin set admin.name=#{name},admin.password=#{password},admin.salt=#{salt} where admin.id=#{id}
+    </update>
+
+    <insert id="insert" parameterType="com.example.demo.model.AdminModel">
+        insert into admin (`name`, password, salt)
+        values (#{name,jdbcType=VARCHAR}, #{password,jdbcType=CHAR}, #{salt,jdbcType=CHAR})
+    </insert>
+
+    <delete id="delete" parameterType="com.example.demo.model.AdminModel">
+        DELETE FROM
+        admin
+        WHERE
+        id = #{id}
+    </delete>
+
+    <select id="selectPage" resultType="com.example.demo.model.AdminModel">
+        select
+        id,
+        `name`,
+        created_at
+        from admin
+    </select>
+
+</mapper>
