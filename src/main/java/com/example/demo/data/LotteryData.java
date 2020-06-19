@@ -18,10 +18,6 @@ public class LotteryData {
 
     final String giftKey = "room_lottery:";
 
-    /**
-     * @param joinUserModel
-     * @return
-     */
     public long leftPush(JoinUserModel joinUserModel) {
         String key = this.getKey(joinUserModel.getRoomId()) + ":joinUserList";
         long successNum = stringRedisTemplate.opsForList().leftPush(key, JSON.toJSONString(joinUserModel));
@@ -32,29 +28,18 @@ public class LotteryData {
         return successNum;
     }
 
-    /**
-     * @param joinUserModel
-     * @return
-     */
     public long put(JoinUserModel joinUserModel) {
         String key = this.getKey(joinUserModel.getRoomId()) + ":joinUserMembers";
         long add = stringRedisTemplate.opsForSet().add(key, joinUserModel.getUserId().toString());
         return add;
     }
 
-    /**
-     * @param joinUserModel
-     * @return
-     */
     public boolean isMember(JoinUserModel joinUserModel) {
         String key = this.getKey(joinUserModel.getRoomId()) + ":joinUserMembers";
         boolean isMember = stringRedisTemplate.opsForSet().isMember(key, joinUserModel.getUserId().toString());
         return isMember;
     }
 
-    /**
-     * @param giftModel
-     */
     public void putAll(GiftModel giftModel) {
         String key = this.getKey(giftModel.getRoomId());
         Map<String, String> valueMap = new HashMap<>();
@@ -67,44 +52,27 @@ public class LotteryData {
         valueMap.put("lotteryTitle", giftModel.getLotteryTitle());
         valueMap.put("lotteryGift", giftModel.getLotteryGift());
         valueMap.put("getLotteryNum", giftModel.getGetLotteryNum().toString());
+        valueMap.put("awardStatus", "incomplete");
         stringRedisTemplate.opsForHash().putAll(key, valueMap);
     }
 
-    /**
-     * @param roomId
-     * @param hashKey
-     * @return
-     */
     public long getHashByKey(Integer roomId, String hashKey) {
         String key = this.getKey(roomId);
         Object value = stringRedisTemplate.opsForHash().get(key, hashKey);
         return Long.parseLong(value.toString());
     }
 
-    /**
-     * @param roomId
-     * @return
-     */
     public long getSize(Integer roomId) {
         String key = this.getKey(roomId) + ":joinUserList";
         Long aLong = stringRedisTemplate.opsForList().size(key);
         return aLong;
     }
 
-    /**
-     * @param roomId
-     * @return
-     */
     private String getKey(Integer roomId) {
         String roomIds = Integer.toString(roomId);
         return this.giftKey + roomIds;
     }
 
-    /**
-     * @param field
-     * @param roomId
-     * @return
-     */
     public long addLookUserTotal(String field, Integer roomId) {
         String key = this.getKey(roomId);
         Long increment = stringRedisTemplate.opsForHash().increment(key, field, 1);
@@ -118,16 +86,9 @@ public class LotteryData {
      */
     public Object index(Integer roomId, long index) {
         String key = this.getKey(roomId) + ":joinUserList";
-        Object listValue = stringRedisTemplate.opsForList().index(key, index);
-        return listValue;
+        return stringRedisTemplate.opsForList().index(key, index);
     }
 
-    /**
-     * 存储中奖的用户
-     *
-     * @param roomId
-     * @param awardUser
-     */
     public void setAwardMember(Integer roomId, String awardUser) {
         String key = this.getKey(roomId) + ":awardMember";
         Long add = stringRedisTemplate.opsForSet().add(key, awardUser);
@@ -136,12 +97,6 @@ public class LotteryData {
         }
     }
 
-    /**
-     * 获取中奖用户
-     *
-     * @param roomId
-     * @return
-     */
     public List<Map<String, Object>> getAwardMember(Integer roomId) {
         List<Map<String, Object>> list = new ArrayList<>();
         String key = this.getKey(roomId) + ":awardMember";
@@ -152,12 +107,6 @@ public class LotteryData {
         return list;
     }
 
-    /**
-     * 修改抽奖状态
-     *
-     * @param roomId
-     * @param status
-     */
     public void setAwardStatus(Integer roomId, String status) {
         if (!StringUtils.isNotBlank(status)) {
             status = "completed";
@@ -166,12 +115,6 @@ public class LotteryData {
         stringRedisTemplate.opsForHash().put(key, "awardStatus", status);
     }
 
-    /**
-     * 获取抽奖状态
-     *
-     * @param roomId
-     * @return
-     */
     public Object getAwardStatus(Integer roomId) {
         String key = this.getKey(roomId);
         Object value = stringRedisTemplate.opsForHash().get(key, "awardStatus");

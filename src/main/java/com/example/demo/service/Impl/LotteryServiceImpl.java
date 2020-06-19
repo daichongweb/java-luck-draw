@@ -6,16 +6,16 @@ import com.example.demo.model.GiftModel;
 import com.example.demo.model.JoinUserModel;
 import com.example.demo.service.LotteryService;
 import com.example.demo.util.Helper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class LotteryServiceImpl implements LotteryService {
 
-    @Autowired
+    @Resource
     LotteryData lotteryData;
 
     @Override
@@ -32,7 +32,7 @@ public class LotteryServiceImpl implements LotteryService {
     public void joinLottery(JoinUserModel joinUserModel) {
         // 检测是否已经参加过
         boolean ifJoin = lotteryData.isMember(joinUserModel);
-        if (ifJoin == true) {
+        if (ifJoin) {
             throw new BusinessException(400, "您已经参与过了");
         }
         lotteryData.leftPush(joinUserModel);
@@ -47,7 +47,7 @@ public class LotteryServiceImpl implements LotteryService {
         }
         long listSize = lotteryData.getSize(roomId);
         long lotteryNum = lotteryData.getHashByKey(roomId, "getLotteryNum");
-        if(listSize < lotteryNum){
+        if (listSize < lotteryNum) {
             throw new BusinessException(400, "参与人数不足，无法开奖");
         }
         Helper helper = new Helper();
@@ -62,7 +62,6 @@ public class LotteryServiceImpl implements LotteryService {
 
     @Override
     public List<Map<String, Object>> getAwardUserList(Integer roomId) {
-        List<Map<String, Object>> userList = lotteryData.getAwardMember(roomId);
-        return userList;
+        return lotteryData.getAwardMember(roomId);
     }
 }
